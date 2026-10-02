@@ -1,0 +1,29 @@
+models:
+  - name: fct_daily
+    description: One row per day. The table every dashboard reads from.
+    columns:
+      - name: date
+        data_tests: [unique, not_null]
+      - name: plan_status
+        data_tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: [done, planned, skipped, extra, rest]
+      - name: next_energy
+        description: Energy the following morning, i.e. the outcome of this day.
+
+  - name: fct_exercise_sessions
+    description: One row per exercise per day with set volume and estimated 1RM progression.
+    data_tests:
+      - unique_combination:
+          arguments:
+            columns: [date, exercise]
+
+  - name: fct_weekly_training
+    description: Planned vs done strength sessions per week.
+    columns:
+      - name: week_start
+        data_tests: [unique, not_null]
+      - name: adherence
+        data_tests: [{ between: { arguments: { min: 0, max: 1 } } }]

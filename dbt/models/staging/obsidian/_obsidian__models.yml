@@ -1,0 +1,43 @@
+models:
+  - name: stg_obsidian__checkins
+    description: Morning ratings (1-5) from day notes.
+    columns:
+      - name: date
+        data_tests: [unique, not_null]
+      - name: energy
+        data_tests: [{ between: { arguments: { min: 1, max: 5 } } }]
+      - name: mood
+        data_tests: [{ between: { arguments: { min: 1, max: 5 } } }]
+      - name: gut
+        data_tests: [{ between: { arguments: { min: 1, max: 5 } } }]
+
+  - name: stg_obsidian__sets
+    description: One row per strength set.
+    columns:
+      - name: reps
+        description: Null when the set text did not parse. Fix the workout note.
+        data_tests:
+          - not_null:
+              config: { severity: warn }
+          - between: { arguments: { min: 1, max: 100 } }
+      - name: weight_kg
+        data_tests: [{ between: { arguments: { min: 0, max: 400 } } }]
+
+  - name: stg_obsidian__plan
+    columns:
+      - name: weekday
+        data_tests:
+          - accepted_values:
+              arguments:
+                values: [monday, tuesday, wednesday, thursday, friday, saturday, sunday]
+
+  - name: stg_obsidian__goals
+    columns:
+      - name: kcal_training
+        data_tests: [{ between: { arguments: { min: 800, max: 6000 } } }]
+      - name: kcal_rest
+        data_tests: [{ between: { arguments: { min: 800, max: 6000 } } }]
+      - name: protein_training
+        data_tests: [{ between: { arguments: { min: 0, max: 400 } } }]
+      - name: protein_rest
+        data_tests: [{ between: { arguments: { min: 0, max: 400 } } }]

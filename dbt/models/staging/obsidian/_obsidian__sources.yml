@@ -1,0 +1,13 @@
+sources:
+  - name: obsidian
+    description: Hand-entered data from the Obsidian journal, loaded by extract/obsidian.py (full refresh).
+    schema: raw_obsidian
+    tables:
+      - name: checkins
+        description: One row per day note. Ratings are raw text.
+      - name: sets
+        description: One row per logged set in workout notes.
+      - name: plan
+        description: Current weekly split, one row. History lives in snap_plan.
+      - name: goals
+        description: Current kcal/protein targets, one row. History lives in snap_goals.

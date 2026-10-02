@@ -1,0 +1,15 @@
+snapshots:
+  - name: snap_plan
+    relation: source('obsidian', 'plan')
+    description: Every version of the weekly split, so past days are judged by the plan valid then.
+    config:
+      unique_key: id
+      strategy: check
+      check_cols: [monday, tuesday, wednesday, thursday, friday, saturday, sunday]
+  - name: snap_goals
+    relation: source('obsidian', 'goals')
+    description: Every version of the nutrition targets.
+    config:
+      unique_key: id
+      strategy: check
+      check_cols: [kcal_training, protein_training, kcal_rest, protein_rest]

@@ -1,0 +1,11 @@
+# personal data and secrets never leave this machine
+data/
+.env
+
+.venv/
+__pycache__/
+dbt/target/
+dbt/logs/
+dbt/dbt_packages/
+dbt/.user.yml
+logs/

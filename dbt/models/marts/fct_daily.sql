@@ -3,10 +3,11 @@ with checkins as (select * from {{ ref('stg_obsidian__checkins') }}),
 sets as (select * from {{ ref('stg_obsidian__sets') }}),
 plan as (select * from {{ ref('stg_obsidian__plan') }}),
 goals as (select * from {{ ref('stg_obsidian__goals') }}),
+food as (select * from {{ ref('stg_fatsecret__daily') }}),
 
 spine as (
     select unnest(generate_series(min(date), current_date, interval 1 day))::date as date
-    from (select date from checkins union all select date from sets)
+    from (select date from checkins union all select date from sets union all select date from food)
 ),
 
 strength as (
@@ -33,6 +34,10 @@ days as (
         goals.protein_training,
         goals.kcal_rest,
         goals.protein_rest,
+        food.kcal,
+        food.protein_g,
+        food.carbs_g,
+        food.fat_g,
         checkins.energy,
         checkins.mood,
         checkins.gut,
@@ -40,6 +45,7 @@ days as (
     from spine
     left join checkins using (date)
     left join strength using (date)
+    left join food using (date)
     left join plan
         on plan.weekday = lower(dayname(spine.date))
         and spine.date >= plan.valid_from and spine.date < plan.valid_to
@@ -62,6 +68,20 @@ select
     -- targets follow the PLAN, not what happened: you decide what to eat before the gym
     case when is_planned_training then kcal_training else kcal_rest end as kcal_target,
     case when is_planned_training then protein_training else protein_rest end as protein_target,
+    kcal,
+    protein_g,
+    carbs_g,
+    fat_g,
+    case
+        when kcal is null then 'not_logged'
+        when kcal_target is null then 'no_target'
+        -- ponytail: under half the target is assumed to be a half-logged day, not a fast; tune if you diet hard
+        when kcal < 0.5 * kcal_target then 'incomplete'
+        when kcal > 1.1 * kcal_target then 'over'
+        when kcal < 0.9 * kcal_target then 'under'
+        else 'on_target'
+    end as food_status,
+    protein_g >= protein_target as hit_protein,
     exercises,
     sets,
     volume_kg,

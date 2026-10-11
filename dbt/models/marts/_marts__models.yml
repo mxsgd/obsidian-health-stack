@@ -10,6 +10,13 @@ models:
           - accepted_values:
               arguments:
                 values: [done, planned, skipped, extra, rest]
+      - name: food_status
+        description: kcal vs target. not_logged = no FatSecret entry; incomplete = under half the target.
+        data_tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: [not_logged, no_target, incomplete, under, on_target, over]
       - name: next_energy
         description: Energy the following morning, i.e. the outcome of this day.
 

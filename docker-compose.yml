@@ -1,0 +1,21 @@
+# Local Airflow: `docker compose up --build`, then http://localhost:8080
+# Single-container `airflow standalone` (SQLite + LocalExecutor): fine for one daily DAG on one machine.
+services:
+  airflow:
+    build: .
+    command: standalone
+    ports: ["8080:8080"]
+    env_file: .env
+    environment:  # wins over env_file: container paths instead of the Windows ones in .env
+      JOURNAL_DIR: /journal
+      DUCKDB_PATH: /opt/airflow/project/data/health.duckdb
+      PYTHONPATH: /opt/airflow/project
+      AIRFLOW__CORE__DAGS_FOLDER: /opt/airflow/project/dags
+      AIRFLOW__CORE__LOAD_EXAMPLES: "False"
+      AIRFLOW__CORE__SIMPLE_AUTH_MANAGER_ALL_ADMINS: "True"  # no login, localhost only
+    volumes:
+      - .:/opt/airflow/project
+      - type: bind
+        source: ${JOURNAL_DIR}
+        target: /journal
+        read_only: true

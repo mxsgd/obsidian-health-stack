@@ -20,6 +20,17 @@ uv run run.py           # extract everything, then dbt build (snapshots, models,
 uv run python -m extract.test_obsidian   # parser checks
 ```
 
+### Scheduled, with Airflow
+
+```bash
+docker compose up --build                                    # http://localhost:8080, DAG `health`
+docker compose exec airflow airflow dags list-import-errors  # DAG parses?
+docker compose exec airflow airflow dags test health         # one run, now
+```
+
+`dags/health.py` runs daily at 06:00: `extract_obsidian → extract_fatsecret → dbt_build`, the same functions as `run.py`.
+FatSecret retries 3× (network); without a token it's skipped and dbt still builds. Extracts are sequential because DuckDB allows one writer.
+
 ## Model
 
 | Layer | Model | Grain |

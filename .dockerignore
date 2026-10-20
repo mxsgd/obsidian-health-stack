@@ -1,0 +1,2 @@
+# nothing to COPY: keeps .env, data/ and .venv out of the build context
+*

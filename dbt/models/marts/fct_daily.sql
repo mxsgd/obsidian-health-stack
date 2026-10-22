@@ -4,10 +4,25 @@ sets as (select * from {{ ref('stg_obsidian__sets') }}),
 plan as (select * from {{ ref('stg_obsidian__plan') }}),
 goals as (select * from {{ ref('stg_obsidian__goals') }}),
 food as (select * from {{ ref('stg_fatsecret__daily') }}),
+health as (select * from {{ ref('stg_obsidian__health') }}),
+workouts as (select * from {{ ref('stg_obsidian__workouts') }}),
 
 spine as (
     select unnest(generate_series(min(date), current_date, interval 1 day))::date as date
-    from (select date from checkins union all select date from sets union all select date from food)
+    from (select date from checkins union all select date from sets union all select date from food
+          union all select date from health)
+),
+
+watch_workouts as (
+    select
+        date,
+        -- strength comes from the Obsidian gym log; the watch's strength sessions would count it twice.
+        -- ponytail: name match, English or Polish Apple Health names; extend if another type slips through
+        sum(duration_min) filter (where not regexp_matches(workout, 'strength|siłow')) as cardio_min,
+        sum(distance_km) as cardio_km,
+        sum(kcal) as workout_kcal  -- all sessions: burned is burned
+    from workouts
+    group by date
 ),
 
 strength as (
@@ -41,9 +56,16 @@ days as (
         checkins.energy,
         checkins.mood,
         checkins.gut,
-        checkins.sleep_h_manual
+        coalesce(health.sleep_h, checkins.sleep_h_manual) as sleep_h,  -- watch wins, manual fills the days before it
+        health.resting_hr,
+        health.steps,
+        watch_workouts.cardio_min,
+        watch_workouts.cardio_km,
+        watch_workouts.workout_kcal
     from spine
     left join checkins using (date)
+    left join health using (date)
+    left join watch_workouts using (date)
     left join strength using (date)
     left join food using (date)
     left join plan
@@ -88,7 +110,12 @@ select
     energy,
     mood,
     gut,
-    sleep_h_manual,
+    sleep_h,
+    resting_hr,
+    steps,
+    cardio_min,
+    cardio_km,
+    workout_kcal,
     -- how the NEXT morning felt: the outcome for anything eaten or done today
     lead(energy) over (order by date) as next_energy,
     lead(mood) over (order by date) as next_mood,

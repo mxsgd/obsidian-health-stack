@@ -17,6 +17,10 @@ models:
           - accepted_values:
               arguments:
                 values: [not_logged, no_target, incomplete, under, on_target, over]
+      - name: sleep_h
+        description: Sleep that ended this morning. From the watch when there is a Health note, else typed in the day note.
+      - name: cardio_min
+        description: Watch workouts except strength sessions (strength comes from the gym log).
       - name: next_energy
         description: Energy the following morning, i.e. the outcome of this day.
 

@@ -23,6 +23,32 @@ models:
       - name: weight_kg
         data_tests: [{ between: { arguments: { min: 0, max: 400 } } }]
 
+  - name: stg_obsidian__health
+    description: Watch data per day (Redmi Watch → Mi Fitness → Apple Health → Shortcut).
+    columns:
+      - name: date
+        data_tests: [unique, not_null]
+      - name: sleep_h
+        data_tests: [{ between: { arguments: { min: 0, max: 16 } } }]
+      - name: resting_hr
+        data_tests: [{ between: { arguments: { min: 30, max: 120 } } }]
+      - name: steps
+        data_tests: [{ between: { arguments: { min: 0, max: 100000 } } }]
+
+  - name: stg_obsidian__workouts
+    description: One row per watch workout.
+    columns:
+      - name: duration_min
+        description: Null when the workout line did not parse. Check the Shortcut's output.
+        data_tests:
+          - not_null:
+              config: { severity: warn }
+          - between: { arguments: { min: 1, max: 600 } }
+      - name: distance_km
+        data_tests: [{ between: { arguments: { min: 0, max: 300 } } }]
+      - name: kcal
+        data_tests: [{ between: { arguments: { min: 0, max: 5000 } } }]
+
   - name: stg_obsidian__plan
     columns:
       - name: weekday

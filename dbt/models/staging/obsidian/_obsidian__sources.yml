@@ -7,6 +7,10 @@ sources:
         description: One row per day note. Ratings are raw text.
       - name: sets
         description: One row per logged set in workout notes.
+      - name: health
+        description: One row per Health note, written daily from Apple Health by an iOS Shortcut. Raw text.
+      - name: workouts
+        description: One row per watch workout line in Health notes.
       - name: plan
         description: Current weekly split, one row. History lives in snap_plan.
       - name: goals
